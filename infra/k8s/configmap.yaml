@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: recommendation-config
+  namespace: recommendation-system
+data:
+  LOG_LEVEL: "INFO"
+  LOG_FORMAT: "json"
+  KAFKA_TOPIC_EVENTS: "user-events"
+  KAFKA_TOPIC_FEATURES: "user-features"
+  KAFKA_CONSUMER_GROUP: "stream-processor"
+  MLFLOW_EXPERIMENT_NAME: "recommendation-system"
+  FEATURE_TTL_SECONDS: "3600"
+  CIRCUIT_BREAKER_FAILURE_THRESHOLD: "5"
+  CIRCUIT_BREAKER_RECOVERY_TIMEOUT: "60"
+

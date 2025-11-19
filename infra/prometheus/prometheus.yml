@@ -1,0 +1,40 @@
+# Prometheus configuration for local development
+# Scrapes metrics from all recommendation system services
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'local-dev'
+    environment: 'development'
+
+scrape_configs:
+  # Ingestion service metrics
+  - job_name: 'ingest-service'
+    static_configs:
+      - targets: ['host.docker.internal:8000']
+        labels:
+          service: 'ingest'
+          environment: 'development'
+
+  # Serving service metrics
+  - job_name: 'serve-service'
+    static_configs:
+      - targets: ['host.docker.internal:8001']
+        labels:
+          service: 'serve'
+          environment: 'development'
+
+  # Stream processor metrics
+  - job_name: 'stream-processor'
+    static_configs:
+      - targets: ['host.docker.internal:8002']
+        labels:
+          service: 'stream-processor'
+          environment: 'development'
+
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+

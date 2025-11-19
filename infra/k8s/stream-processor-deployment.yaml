@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stream-processor
+  namespace: recommendation-system
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: stream-processor
+  template:
+    metadata:
+      labels:
+        app: stream-processor
+    spec:
+      containers:
+      - name: processor
+        image: ghcr.io/ayushbhure/recommendation-system/stream-processor:latest
+        ports:
+        - containerPort: 8002
+        env:
+        - name: POSTGRES_HOST
+          valueFrom:
+            secretKeyRef:
+              name: recommendation-secrets
+              key: postgres-host
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: recommendation-secrets
+              key: postgres-user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: recommendation-secrets
+              key: postgres-password
+        - name: REDIS_HOST
+          valueFrom:
+            secretKeyRef:
+              name: recommendation-secrets
+              key: redis-host
+        - name: KAFKA_BROKERS
+          valueFrom:
+            secretKeyRef:
+              name: recommendation-secrets
+              key: kafka-brokers
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /metrics
+            port: 8002
+          initialDelaySeconds: 60
+          periodSeconds: 30
+

@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: serve-service
+  namespace: recommendation-system
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: serve-service
+  template:
+    metadata:
+      labels:
+        app: serve-service
+    spec:
+      containers:
+      - name: serve
+        image: ghcr.io/ayushbhure/recommendation-system/serve:latest
+        ports:
+        - containerPort: 8001
+        env:
+        - name: POSTGRES_HOST
+          valueFrom:
+            secretKeyRef:
+              name: recommendation-secrets
+              key: postgres-host
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: recommendation-secrets
+              key: postgres-user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: recommendation-secrets
+              key: postgres-password
+        - name: REDIS_HOST
+          valueFrom:
+            secretKeyRef:
+              name: recommendation-secrets
+              key: redis-host
+        - name: MLFLOW_TRACKING_URI
+          valueFrom:
+            secretKeyRef:
+              name: recommendation-secrets
+              key: mlflow-tracking-uri
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8001
+          initialDelaySeconds: 10
+          periodSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: serve-service
+  namespace: recommendation-system
+spec:
+  selector:
+    app: serve-service
+  ports:
+  - port: 80
+    targetPort: 8001
+  type: LoadBalancer
+

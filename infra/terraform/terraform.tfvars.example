@@ -1,0 +1,22 @@
+# Example Terraform variables file
+# Copy to terraform.tfvars and fill in your values
+
+azure_subscription_id = "your-subscription-id"
+azure_tenant_id       = "your-tenant-id"
+azure_client_id       = "your-client-id"
+azure_client_secret   = "your-client-secret"
+
+resource_group_name = "recommendation-system-rg"
+location            = "eastus"
+environment         = "production"
+
+aks_cluster_name = "recommendation-aks"
+aks_node_count   = 3
+aks_node_size    = "Standard_D2s_v3"
+
+postgres_server_name   = "recommendation-postgres"
+postgres_admin_user    = "recommendation_admin"
+postgres_admin_password = "your-secure-password"
+
+event_hubs_namespace = "recommendation-events"
+
