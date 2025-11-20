@@ -2,7 +2,7 @@
 
 A production-grade, fault-tolerant ML system that ingests streaming user events and serves low-latency personalized recommendations.
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────┐      ┌──────────────┐      ┌─────────────────┐
@@ -47,7 +47,7 @@ A production-grade, fault-tolerant ML system that ingests streaming user events 
 6. **Serving Service**: FastAPI endpoint that serves recommendations with caching and fallbacks
 7. **Frontend**: React demo application
 
-## 🚀 Quick Start (Local Development)
+## Quick Start (Local Development)
 
 ### Prerequisites
 
@@ -131,7 +131,7 @@ curl -X POST http://localhost:8000/events \
 curl "http://localhost:8001/recommend?user_id=user1&k=10"
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 .
@@ -156,7 +156,7 @@ curl "http://localhost:8001/recommend?user_id=user1&k=10"
 └── data/                     # Sample data (gitignored)
 ```
 
-## 🧪 Testing
+## Testing
 
 ### Unit Tests
 
@@ -175,7 +175,7 @@ pytest tests/unit/ --cov=services --cov-report=html
 ./scripts/run_smoke_test.sh
 ```
 
-## 🏭 Production Deployment
+## Production Deployment
 
 ### Kubernetes (AKS)
 
@@ -204,7 +204,7 @@ pytest tests/unit/ --cov=services --cov-report=html
 
 See `infra/k8s/README.md` for detailed deployment instructions.
 
-## 🔧 Configuration
+## Configuration
 
 All configuration is managed via environment variables. See `.env.example` for all available options.
 
@@ -215,7 +215,7 @@ Key configuration areas:
 - **MLflow**: Tracking URI and experiment name
 - **Observability**: Prometheus, Grafana, OpenTelemetry endpoints
 
-## 📊 Observability
+## Observability
 
 ### Metrics (Prometheus)
 
@@ -236,7 +236,7 @@ Structured JSON logs are emitted by all services. View with:
 docker-compose -f infra/docker-compose.yml logs -f [service-name]
 ```
 
-## 🎓 Mentoring & Best Practices
+## Mentoring & Best Practices
 
 See [MENTORING.md](./MENTORING.md) for:
 - System design interview talking points
@@ -245,7 +245,7 @@ See [MENTORING.md](./MENTORING.md) for:
 - Deployment patterns
 - Observability practices
 
-## 🛠️ Development
+## Development
 
 ### Code Quality
 
@@ -273,7 +273,7 @@ pre-commit install
 5. Update documentation
 6. Submit PR
 
-## 🔐 Security Notes
+## Security Notes
 
 - **Never commit `.env` files** - use `.env.example` as template
 - **Rotate secrets regularly** in production
@@ -281,7 +281,7 @@ pre-commit install
 - **Enable TLS** for all database connections in production
 - **Implement rate limiting** on public endpoints
 
-## 📝 Design Decisions & Tradeoffs
+## Design Decisions & Tradeoffs
 
 ### At-Least-Once vs Exactly-Once
 
@@ -307,49 +307,7 @@ pre-commit install
 - **Python Consumer**: Local dev, simpler debugging
 - **Rationale**: Both provided for flexibility
 
-## 🐛 Troubleshooting
 
-### Services won't start
-
-```bash
-# Check Docker Compose logs
-docker-compose -f infra/docker-compose.yml logs
-
-# Verify ports aren't in use
-netstat -an | grep -E '8000|8001|5432|6379|9092'
-```
-
-### Database connection errors
-
-```bash
-# Wait for databases to be ready
-docker-compose -f infra/docker-compose.yml exec postgres pg_isready
-docker-compose -f infra/docker-compose.yml exec mongodb mongosh --eval "db.adminCommand('ping')"
-```
-
-### No recommendations returned
-
-1. Check if events are being ingested: `curl http://localhost:8000/health`
-2. Verify stream processor is running and consuming events
-3. Check Redis for cached features: `docker-compose exec redis redis-cli KEYS "*"`
-4. Ensure model is trained and vectors are indexed
-
-## 📚 Additional Resources
-
-- [Architecture Deep Dive](./docs/architecture.md)
-- [API Documentation](./docs/api.md)
-- [Deployment Guide](./infra/k8s/README.md)
-- [Contributing Guidelines](./CONTRIBUTING.md)
-
-## ✅ Checklist
-
-See [CHECKLIST.md](./CHECKLIST.md) for a complete verification checklist.
-
-## 📄 License
-
-MIT License - see LICENSE file for details
-
-## 🤝 Contributing
 
 Contributions welcome! Please read CONTRIBUTING.md first.
 
