@@ -262,7 +262,7 @@ def main():
     try:
         trainer = RecommendationTrainer()
         run_id = trainer.train_and_log()
-        print(f"Training complete. Run ID: {run_id}")
+        logger.info(f"Training complete. Run ID: {run_id}")
         sys.exit(0)
     except Exception as e:
         logger.error(f"Training failed: {e}", exc_info=True)

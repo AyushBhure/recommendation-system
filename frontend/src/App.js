@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import axios from 'axios';
 
@@ -26,23 +26,17 @@ function App() {
         item_id: itemId,
         event_type: eventType,
         timestamp: new Date().toISOString(),
-        properties: {
-          page: 'simple-ui',
-          session_id: `session_${Date.now()}`,
-        },
       };
 
       await axios.post(`${INGEST_API}/events`, event);
       setEvents((prev) => [...prev, { ...event, timestamp: new Date() }]);
-
-      setTimeout(() => fetchRecommendations(), 1500);
+      fetchRecommendations();
     } catch (error) {
-      console.error('Error sending event:', error);
       alert('Failed to send event. Make sure the ingestion service is running.');
     }
   };
 
-  const fetchRecommendations = async () => {
+  const fetchRecommendations = useCallback(async () => {
     setLoading(true);
     try {
       const response = await axios.get(`${SERVE_API}/recommend`, {
@@ -54,16 +48,15 @@ function App() {
 
       setRecommendations(response.data.recommendations || []);
     } catch (error) {
-      console.error('Error fetching recommendations:', error);
       setRecommendations([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     fetchRecommendations();
-  }, [userId]);
+  }, [fetchRecommendations]);
 
   return (
     <div className="App">
@@ -116,7 +109,6 @@ function App() {
           <div className="content-card">
             <div className="card-header">
               <h2>Sample Items</h2>
-              <p className="card-subtitle">Click to send view events</p>
             </div>
             <div className="items-grid">
               {SAMPLE_ITEMS.map((item) => (
@@ -139,7 +131,6 @@ function App() {
           <div className="content-card">
             <div className="card-header">
               <h2>Recommendations</h2>
-              <p className="card-subtitle">Personalized suggestions based on your activity</p>
             </div>
             {loading ? (
               <div className="loading-state">
@@ -161,7 +152,6 @@ function App() {
                         Score: <span className="score-value">{rec.score ? rec.score.toFixed(4) : 'n/a'}</span>
                       </div>
                     </div>
-                    <div className="rec-badge">Top {index < 3 ? 'Pick' : 'Choice'}</div>
                   </div>
                 ))}
               </div>
@@ -171,7 +161,6 @@ function App() {
           <div className="content-card">
             <div className="card-header">
               <h2>Recent Activity</h2>
-              <p className="card-subtitle">Your latest interactions</p>
             </div>
             {events.length === 0 ? (
               <div className="empty-state">
