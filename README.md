@@ -153,15 +153,3 @@ Structured JSON logs are emitted by all services. View with:
 ```bash
 docker-compose -f infra/docker-compose.yml logs -f [service-name]
 ```
-
-## Development
-
-### Adding New Features
-
-1. Create feature branch
-2. Write tests first (TDD)
-3. Implement feature
-4. Ensure all tests pass
-5. Update documentation
-6. Submit PR
-
