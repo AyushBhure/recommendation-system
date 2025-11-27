@@ -112,50 +112,6 @@ cd services/trainer
 python train.py --experiment-name recommendation-system
 ```
 
-### Step 6: Test the System
-
-```bash
-# Run end-to-end smoke test
-./scripts/run_smoke_test.sh
-```
-
-Or manually:
-
-```bash
-# Generate some events
-curl -X POST http://localhost:8000/events \
-  -H "Content-Type: application/json" \
-  -d '{"user_id": "user1", "event_type": "view", "item_id": "item1", "timestamp": "2024-01-01T00:00:00Z"}'
-
-# Wait a few seconds for processing, then get recommendations
-curl "http://localhost:8001/recommend?user_id=user1&k=10"
-```
-
-## Project Structure
-
-```
-.
-├── infra/                    # Infrastructure as Code
-│   ├── docker-compose.yml    # Local dev environment
-│   ├── k8s/                  # Kubernetes manifests
-│   └── terraform/            # Azure Terraform configs
-├── services/
-│   ├── ingest/               # Event ingestion service
-│   ├── stream_processor/     # Spark/Python stream processor
-│   ├── trainer/              # Model training + MLflow
-│   └── serve/                # Recommendation serving API
-├── frontend/                 # React demo application
-├── ops/                      # Operations scripts
-│   ├── prometheus/           # Prometheus config
-│   ├── grafana/              # Grafana dashboards
-│   └── otlp/                 # OpenTelemetry config
-├── tests/
-│   ├── unit/                 # Unit tests
-│   └── e2e/                  # End-to-end tests
-├── scripts/                  # Utility scripts
-└── data/                     # Sample data (gitignored)
-```
-
 ## Testing
 
 ### Unit Tests
@@ -177,33 +133,6 @@ pytest tests/unit/ --cov=services --cov-report=html
 
 ## Production Deployment
 
-### Kubernetes (AKS)
-
-1. **Provision Azure Resources**:
-   ```bash
-   cd infra/terraform
-   terraform init
-   terraform plan
-   terraform apply
-   ```
-
-2. **Deploy to AKS**:
-   ```bash
-   # Configure kubectl
-   az aks get-credentials --resource-group recommendation-system-rg --name recommendation-aks
-
-   # Apply manifests
-   kubectl apply -f infra/k8s/
-   ```
-
-3. **Verify Deployment**:
-   ```bash
-   kubectl get pods -n recommendation-system
-   kubectl get services -n recommendation-system
-   ```
-
-See `infra/k8s/README.md` for detailed deployment instructions.
-
 ## Configuration
 
 All configuration is managed via environment variables. See `.env.example` for all available options.
@@ -217,17 +146,6 @@ Key configuration areas:
 
 ## Observability
 
-### Metrics (Prometheus)
-
-- Service: `http://localhost:9090`
-- Metrics endpoint: `http://localhost:8001/metrics`
-
-### Dashboards (Grafana)
-
-- Service: `http://localhost:3001`
-- Default credentials: `admin/admin`
-- Pre-configured dashboards in `ops/grafana/dashboards/`
-
 ### Logs
 
 Structured JSON logs are emitted by all services. View with:
@@ -236,33 +154,7 @@ Structured JSON logs are emitted by all services. View with:
 docker-compose -f infra/docker-compose.yml logs -f [service-name]
 ```
 
-## Mentoring & Best Practices
-
-See [MENTORING.md](./MENTORING.md) for:
-- System design interview talking points
-- Best practices for junior engineers
-- Testing strategies
-- Deployment patterns
-- Observability practices
-
 ## Development
-
-### Code Quality
-
-```bash
-# Format code
-black services/ tests/
-
-# Lint
-flake8 services/ tests/
-pylint services/
-
-# Type checking
-mypy services/
-
-# Pre-commit hooks (install with)
-pre-commit install
-```
 
 ### Adding New Features
 
@@ -273,36 +165,3 @@ pre-commit install
 5. Update documentation
 6. Submit PR
 
-## Security Notes
-
-- **Never commit `.env` files** - use `.env.example` as template
-- **Rotate secrets regularly** in production
-- **Use Kubernetes secrets** for sensitive data
-- **Enable TLS** for all database connections in production
-- **Implement rate limiting** on public endpoints
-
-## Design Decisions & Tradeoffs
-
-### At-Least-Once vs Exactly-Once
-
-- **Current**: At-least-once delivery (simpler, lower latency)
-- **Rationale**: Idempotency keys in events handle duplicates
-- **Tradeoff**: Slight risk of duplicate processing (acceptable for recommendations)
-
-### Redis vs PostgreSQL for Feature Cache
-
-- **Redis**: Hot features, low-latency reads (<1ms)
-- **PostgreSQL**: Persistent metadata, user/item profiles
-- **Rationale**: Hybrid approach balances speed and durability
-
-### Pinecone vs FAISS
-
-- **Pinecone**: Production scale, managed service
-- **FAISS**: Local dev, no external dependencies
-- **Rationale**: Fallback ensures system works without cloud dependencies
-
-### Spark vs Lightweight Python Consumer
-
-- **Spark**: Production scale, complex aggregations
-- **Python Consumer**: Local dev, simpler debugging
-- **Rationale**: Both provided for flexibility
